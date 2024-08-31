@@ -27,6 +27,7 @@ public class RedissonConfig {
         String redisAddress = String.format("redis://%s:%s", host, port);
         String password = "20010309npy!";
         config.useSingleServer().setAddress(redisAddress).setDatabase(3).setPassword(password);
+//        config.useSingleServer().setAddress(redisAddress).setDatabase(3);
         // 2. 创建实例
         RedissonClient redisson = Redisson.create(config);
 

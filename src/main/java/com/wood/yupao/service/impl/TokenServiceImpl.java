@@ -21,7 +21,7 @@ public class TokenServiceImpl implements TokenService {
     //生成token(格式为:设备-加密的用户名-时间-六位随机数)
     public String generateToken(Long userId) {
         StringBuilder token = new StringBuilder("token:");
-        //加密的用户名
+        //加密的用户id
         token.append(DigestUtils.md5Hex(String.valueOf(userId)) + "-");
         //时间
         token.append(new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()) + "-");

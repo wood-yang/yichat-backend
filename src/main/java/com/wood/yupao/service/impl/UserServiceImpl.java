@@ -22,6 +22,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,9 +41,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Resource
     private UserMapper userMapper;
-
-    @Resource
-    private TokenService tokenService;
 
     @Resource
     private RedisTemplate redisTemplate;
@@ -284,8 +282,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (oldUser == null) {
             throw new BusinessException(ErrorCode.NULL_ERROR);
         }
+        int result = userMapper.updateById(user);
+        User newUser = userMapper.selectById(userId);
 
-        return userMapper.updateById(user);
+
+        return result;
     }
 
     @Override

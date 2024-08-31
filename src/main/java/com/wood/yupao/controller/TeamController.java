@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/team")
-@CrossOrigin(origins = {"http://localhost:3000", "http://113.45.152.60", "https://113.45.152.60", "https://yupao-front-end-1-503ylbpu4-wood-yangs-projects.vercel.app", "http://www.wood-yang.cn", "http://yupao.wood-yang.cn", "http://yupao.backend.wood-yang.cn"}, allowCredentials = "true")
 public class TeamController {
 
     @Resource
@@ -130,6 +129,9 @@ public class TeamController {
         Map<Long, List<UserTeam>> listMap = userTeamList.stream().collect(Collectors.groupingBy(UserTeam::getTeamId));
         List<Long> idList = new ArrayList<>(listMap.keySet());
         teamQuery.setIdList(idList);
+        if (idList.isEmpty()) {
+            return ResultUtils.success(new ArrayList<>());
+        }
         List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
         // 排除自己亲自创建的队伍
         teamList = teamList.stream().filter(team -> !team.getUserId().equals(loginUser.getId())).collect(Collectors.toList());
@@ -155,7 +157,9 @@ public class TeamController {
         User loginUser = userService.getLoginUser(request);
         teamQuery.setUserId(loginUser.getId());
         List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
-
+        if (teamList.isEmpty()) {
+            return ResultUtils.success(teamList);
+        }
         // 查询已加入队伍的用户信息（人数）
         final List<Long> teamIdList = teamList.stream().map(TeamUserVO::getId).collect(Collectors.toList());
         QueryWrapper<UserTeam> userTeamJoinQueryWrapper = new QueryWrapper<>();

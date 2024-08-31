@@ -40,7 +40,6 @@ import static com.wood.yupao.contant.UserConstant.USER_LOGIN_STATE;
  */
 @RestController
 @RequestMapping("/user")
-@CrossOrigin(origins = {"http://localhost:3000", "http://113.45.152.60", "https://113.45.152.60", "https://yupao-front-end-1-503ylbpu4-wood-yangs-projects.vercel.app", "http://www.wood-yang.cn", "http://yupao.wood-yang.cn", "http://yupao.backend.wood-yang.cn"}, allowCredentials = "true")
 @Slf4j
 public class UserController {
 
@@ -201,6 +200,12 @@ public class UserController {
         User loginUser = userService.getLoginUser(request);
         // 触发更新
         Integer result = userService.updateUser(user, loginUser);
+        if (result == 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        String token = this.tokenService.generateToken(user.getId());
+        //将token码保存到redis中
+        this.tokenService.save(token, user);
         return ResultUtils.success(result);
     }
 
@@ -213,15 +218,15 @@ public class UserController {
     public BaseResponse<Page<User>> recommendUsers(long pageSize, long pageNum, HttpServletRequest request) {
         // 如果有缓存，直接读缓存
         User loginUser = userService.getLoginUser(request);
-//        String redisKey = String.format("yupao:user:recommend:%s", loginUser.getId());
-//        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
-//        Page<User> userPage = (Page<User>) valueOperations.get(redisKey);
-//        if (userPage != null) {
-//            return ResultUtils.success(userPage);
-//        }
+        String redisKey = String.format("yupao:user:recommend:%s", loginUser.getId());
+        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
+        Page<User> userPage = (Page<User>) valueOperations.get(redisKey);
+        if (userPage != null) {
+            return ResultUtils.success(userPage);
+        }
         // 无缓存，查数据库
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        Page<User> userPage = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
+        userPage = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
         // 把缓存写进去
 //        try {
 //            valueOperations.set(redisKey, userPage, 30, TimeUnit.SECONDS);

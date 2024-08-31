@@ -7,14 +7,13 @@ spring:
   # DataSource Config
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://gz-tdsql-darrkhl7.sql.tencentcdb.com:21056/yupao
-    username: wood
-    password: 20010309Npy!
+    url: jdbc:mysql://localhost:3306/yupao
+    username: root
+    password: 1234
   # redis配置
   redis:
-    host: r-2vc8otahhn18exw8zhpd.redis.cn-chengdu.rds.aliyuncs.com
+    host: localhost
     port: 6379
-    password: 20010309npy!
 #  redis:
 #    port: 6379
 #    host: localhost
