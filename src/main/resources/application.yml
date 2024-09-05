@@ -3,24 +3,24 @@ spring:
   application:
     name: yupao-backend
   profiles:
-    active: prod
+    active: dev
   # DataSource Config
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/yupao
-    username: root
-    password: 1234
+#    url: jdbc:mysql://localhost:3306/yupao
+#    username: root
+#    password: 1234
+    url: jdbc:mysql://113.45.152.60:21056/yi_chat
+    username: wood
+    password: ZtnDzGEJeErcJ5Y7
   # redis配置
   redis:
     host: localhost
     port: 6379
-#  redis:
-#    port: 6379
-#    host: localhost
   # session 失效时间（分钟）
   session:
     timeout: 86400
-    store-type: redis
+    store-type: none
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher

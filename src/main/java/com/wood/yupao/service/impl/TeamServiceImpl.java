@@ -1,4 +1,5 @@
 package com.wood.yupao.service.impl;
+
 import java.util.Date;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -171,9 +172,8 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
                 throw new BusinessException(ErrorCode.NO_AUTH);
             }
             if (statusEnum == null) {
-                teamQueryWrapper.ne("status", TeamStatusEnum.PRIVATE);
-            }
-            else {
+                teamQueryWrapper.ne("status", TeamStatusEnum.PRIVATE.getValue());
+            } else {
                 teamQueryWrapper.eq("status", statusEnum.getValue());
             }
             teamQueryWrapper.and(qw -> qw.isNull("expireTime").or().ge("expireTime", new Date()));
@@ -275,7 +275,10 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         // todo 1. 让 1 个用户同时只能发起加入 1 个队伍的请求(用户加入的队伍个数有上限)
         //  2.让 1 个队伍，同时只能收到 1 个用户的请求(队伍的人数有上限)
         // 只有一个线程能获取到锁
-        RLock lock = redissonClient.getLock("yupao:join_team");
+        RLock lock1 = redissonClient.getLock("yupao:user" + ":" + userId);
+        RLock lock2 = redissonClient.getLock("yupao:team" + ":" + teamId);
+
+        RLock lock = redissonClient.getMultiLock(lock1, lock2);
         try {
             while (true) {
                 // 抢到锁并执行
@@ -330,7 +333,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         }
         Long teamId = teamDeleteRequest.getId();
         if (teamId <= 0) {
-            throw  new BusinessException(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
         Long userId = loginUser.getId();
@@ -354,7 +357,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         }
         Long teamId = teamQuitRequest.getTeamId();
         if (teamId == null || teamId <= 0) {
-            throw  new BusinessException(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
         Long userId = loginUser.getId();
@@ -378,8 +381,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         }
         if (userTeamList.isEmpty()) {
             this.removeById(teamId);
-        }
-        else {
+        } else {
             // 如果退出的为队长，移交队长给 队长退出后 第一个进入队伍的人
             if (userId.equals(team.getUserId())) {
                 UserTeam userTeam = userTeamList.get(0);

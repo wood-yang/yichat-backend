@@ -25,6 +25,11 @@ public class Team implements Serializable {
     private String name;
 
     /**
+     * 头像 url
+     */
+    private String avatarUrl;
+
+    /**
      * 描述
      */
     private String description;

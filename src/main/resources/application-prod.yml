@@ -11,6 +11,8 @@ spring:
     host: 127.0.0.1
     port: 21544
     password: 20010309npy!
+  session:
+    timeout: 86400
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher

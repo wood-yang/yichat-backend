@@ -135,7 +135,9 @@ public class TeamController {
         List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
         // 排除自己亲自创建的队伍
         teamList = teamList.stream().filter(team -> !team.getUserId().equals(loginUser.getId())).collect(Collectors.toList());
-
+        if (teamList.isEmpty()) {
+            return ResultUtils.success(teamList);
+        }
         // 查询已加入队伍的用户信息（人数）
         final List<Long> teamIdList = teamList.stream().map(TeamUserVO::getId).collect(Collectors.toList());
         QueryWrapper<UserTeam> userTeamJoinQueryWrapper = new QueryWrapper<>();

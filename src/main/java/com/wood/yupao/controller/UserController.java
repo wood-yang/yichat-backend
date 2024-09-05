@@ -2,6 +2,7 @@ package com.wood.yupao.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.gson.Gson;
 import com.wood.yupao.common.BaseResponse;
 import com.wood.yupao.common.ErrorCode;
 import com.wood.yupao.common.ResultUtils;
@@ -28,7 +29,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -65,11 +69,10 @@ public class UserController {
         String userAccount = request.getUserAccount();
         String userPassword = request.getUserPassword();
         String checkPassword = request.getCheckPassword();
-        String planetCode = request.getPlanetCode();
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, planetCode)) {
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
             return null;
         }
-        long result = userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
+        long result = userService.userRegister(userAccount, userPassword, checkPassword);
         return ResultUtils.success(result);
     }
 
@@ -220,19 +223,31 @@ public class UserController {
         User loginUser = userService.getLoginUser(request);
         String redisKey = String.format("yupao:user:recommend:%s", loginUser.getId());
         ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
-        Page<User> userPage = (Page<User>) valueOperations.get(redisKey);
+        String json = (String) valueOperations.get(redisKey);
+        Gson gson = new Gson();
+        Page userPage = gson.fromJson(json, Page.class);
         if (userPage != null) {
             return ResultUtils.success(userPage);
         }
         // 无缓存，查数据库
+        Random random = new Random();
+        HashSet<Long> idSet = new HashSet<>();
+        while (idSet.size() != 100) {
+            long number = random.nextInt(1000) + 1;
+            idSet.add(number);
+        }
+        idSet.remove(loginUser.getId());
+        List<Long> idList = new ArrayList<>(idSet);
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("id", idList);
         userPage = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
         // 把缓存写进去
-//        try {
-//            valueOperations.set(redisKey, userPage, 30, TimeUnit.SECONDS);
-//        } catch (Exception e) {
-//            log.error("redis set key error", e);
-//        }
+        try {
+            json = gson.toJson(userPage);
+            valueOperations.set(redisKey, json, 30, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.error("redis set key error", e);
+        }
         return ResultUtils.success(userPage);
     }
 

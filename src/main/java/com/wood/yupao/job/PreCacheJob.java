@@ -2,6 +2,7 @@ package com.wood.yupao.job;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.gson.Gson;
 import com.wood.yupao.model.domain.User;
 import com.wood.yupao.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -44,13 +44,23 @@ public class PreCacheJob {
             if (lock.tryLock(0, 30000L, TimeUnit.MILLISECONDS)) {
                 System.out.println("getLock Thread: " + Thread.currentThread().getId());
                 // 如果有缓存，直接读缓存
+                Random random = new Random();
+                HashSet<Integer> idSet = new HashSet<>();
+                while (idSet.size() != 100) {
+                    int number = random.nextInt(1000) + 1;
+                    idSet.add(number);
+                }
+                List<Integer> idList = new ArrayList<>(idSet);
                 for (Long userId : mainUserList) {
                     QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+                    queryWrapper.in("id", idList);
                     Page<User> userPage = userService.page(new Page<>(1, 20), queryWrapper);
                     String redisKey = String.format("yupao:user:recommend:%s", userId);
                     ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
+                    Gson gson = new Gson();
+                    String json = gson.toJson(userPage);
                     try {
-                        valueOperations.set(redisKey, userPage, 30, TimeUnit.SECONDS);
+                        valueOperations.set(redisKey, json, 1, TimeUnit.DAYS);
                     } catch (Exception e) {
                         log.error("redis set key error", e);
                     }

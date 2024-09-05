@@ -1,63 +1,29 @@
 //package com.wood.yupao.service;
 //
-//import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-//import com.wood.yupao.mapper.UserMapper;
+//import cn.hutool.http.HttpUtil;
+//import com.google.gson.Gson;
+//import com.wood.yupao.YuPaoApplication;
 //import com.wood.yupao.model.domain.User;
 //import org.junit.jupiter.api.Test;
+//import org.junit.runner.RunWith;
 //import org.springframework.boot.test.context.SpringBootTest;
+//import org.springframework.test.context.junit4.SpringRunner;
 //import org.springframework.util.StopWatch;
 //
 //import javax.annotation.Resource;
-//import java.util.ArrayList;
-//import java.util.Arrays;
-//import java.util.Collections;
-//import java.util.List;
+//import java.util.*;
 //import java.util.concurrent.*;
 //
-//@SpringBootTest
-//public class InsertUsersTest {
+//@RunWith(SpringRunner.class)
+//@SpringBootTest(classes = YuPaoApplication.class)
+//public class UserServiceTest {
 //
 //    @Resource
 //    UserService userService;
-//    @Resource
-//    UserMapper userMapper;
-//
 //
 //    // CPU 密集型：分配的核心线程数 = CPU - 1
 //    // IO 密集型：分配的核心线程数可以大于 CPU 核数
-//    private ExecutorService executorService = new ThreadPoolExecutor(60, 1000, 10000, TimeUnit.MINUTES, new ArrayBlockingQueue<>(10000));
-//
-//    /**
-//     * 模拟插入用户
-//     */
-//    @Test
-//    public void doInsertUsers() {
-//        StopWatch stopWatch = new StopWatch();
-//        stopWatch.start();
-//        List<User> userList = new ArrayList<User>();
-//        final int INSERT_NUM = 100000;
-//        for (int i = 0; i < INSERT_NUM; i++) {
-//            User user = new User();
-//            user.setUsername("假用户");
-//            user.setUserAccount("fakeGod");
-//            user.setAvatarUrl("https://ts2.cn.mm.bing.net/th?id=OIP-C.PwHLbZIbsGxF2dbe0zOc_QHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&dpr=1.5&pid=3.1&rm=2");
-//            user.setGender(0);
-//            user.setUserPassword("12345678");
-//            user.setPhone("32132");
-//            user.setEmail("544891");
-//            user.setUserStatus(0);
-//            user.setUserRole(0);
-//            user.setPlanetCode("2130");
-//            user.setTags("[]");
-//            userList.add(user);
-//        }
-//        userService.saveBatch(userList, 500);
-//        stopWatch.stop();
-//        //1000: 10595
-//        //10000: 10672
-//        //50000: 10852
-//        System.out.println(stopWatch.getTotalTimeMillis());
-//    }
+//    private final ExecutorService executorService = new ThreadPoolExecutor(60, 1000, 10000, TimeUnit.MINUTES, new ArrayBlockingQueue<>(10000));
 //
 //    /**
 //     * 并发插入用户
@@ -70,27 +36,36 @@
 //        final int INSERT_NUM = 1000;
 //        // 分十组
 //        List<CompletableFuture<Void>> futureList = new ArrayList<>();
-//        for (int i = 0; i < 100; i++) {
+//        for (int i = 0; i < 1; i++) {
 //            List<User> userList = Collections.synchronizedList(new ArrayList<>());
-//            List<String> language = Arrays.asList("\"java\"", "\"c++\"", "\"python\"");
+//            List<String> language = Arrays.asList("\"java\"", "\"c++\"", "\"python\"", "\"php\"");
 //            List<String> gender = Arrays.asList("\"男\"", "\"女\"");
 //            List<String> grade = Arrays.asList("\"大一\"", "\"大二\"", "\"大三\"", "\"大四\"");
 //            List<String> hobby = Arrays.asList("\"swim\"", "\"sing\"", "\"rap\"");
-//            List<String> emotion = Arrays.asList("\"happy\"", "\"emo\"", "\"angry\"");
+//            List<String> emotion = Arrays.asList("\"happy\"", "\"emo\"", "\"angry\"", "\"sad\"");
 //            List<List<String>> tagList = Arrays.asList(language, gender, grade, hobby, emotion);
 //
 //            for (int j = 0; j < INSERT_NUM; j++) {
 //                User user = new User();
-//                user.setUsername("假用户");
-//                user.setUserAccount("fakeGod");
-//                user.setAvatarUrl("https://ts2.cn.mm.bing.net/th?id=OIP-C.PwHLbZIbsGxF2dbe0zOc_QHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&dpr=1.5&pid=3.1&rm=2");
-//                user.setGender(0);
-//                user.setUserPassword("12345678");
-//                user.setPhone("32132");
-//                user.setEmail("544891");
+//                String name = HttpUtil.get("https://api.mir6.com/api/sjname");
+//                user.setUsername(name);
+//                Random random = new Random();
+//                int number = random.nextInt(88888888) + 11111111;
+//                user.setUserAccount(String.valueOf(number));
+//                String avatarUrl = HttpUtil.get("https://api.vvhan.com/api/avatar/rand?type=json");
+//                Gson gson = new Gson();
+//                HashMap map = gson.fromJson(avatarUrl, HashMap.class);
+//                user.setAvatarUrl((String) map.get("url"));
+//                number = random.nextInt(2);
+//                user.setGender(number);
+//                user.setUserPassword("fed63ea6b39df48c361f4eecac3e5ddf");
+//                Long phoneNumber = 10000000000L;
+//                phoneNumber += random.nextInt(10000) * 10000 + random.nextInt(10000);
+//                user.setPhone(String.valueOf(phoneNumber));
+//                Long email = random.nextInt(100000) * 100000L + random.nextInt(100000);
+//                user.setEmail(email + "@qq.com");
 //                user.setUserStatus(0);
 //                user.setUserRole(0);
-//                user.setPlanetCode("2130");
 //                StringBuffer tags = new StringBuffer();
 //                tags.append('[');
 //                for (int k = 0; k < 5; k++) {
@@ -119,14 +94,4 @@
 //        System.out.println(stopWatch.getTotalTimeMillis());
 //    }
 //
-//
-//    /**
-//     * 删除用户
-//     */
-//    @Test
-//    public void doDeleteUsers() {
-//        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-//        queryWrapper.ge("id", 7);
-//        userMapper.delete(queryWrapper);
-//    }
 //}
