@@ -1,9 +1,7 @@
-//package com.wood.yupao.service;
+//package com.wood.yichat.service;
 //
 //import cn.hutool.http.HttpUtil;
 //import com.google.gson.Gson;
-//import com.wood.yupao.YuPaoApplication;
-//import com.wood.yupao.model.domain.User;
 //import org.junit.jupiter.api.Test;
 //import org.junit.runner.RunWith;
 //import org.springframework.boot.test.context.SpringBootTest;
@@ -15,7 +13,6 @@
 //import java.util.concurrent.*;
 //
 //@RunWith(SpringRunner.class)
-//@SpringBootTest(classes = YuPaoApplication.class)
 //public class UserServiceTest {
 //
 //    @Resource

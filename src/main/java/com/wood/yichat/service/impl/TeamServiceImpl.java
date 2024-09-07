@@ -273,8 +273,8 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         // todo 1. 让 1 个用户同时只能发起加入 1 个队伍的请求(用户加入的队伍个数有上限)
         //  2.让 1 个队伍，同时只能收到 1 个用户的请求(队伍的人数有上限)
         // 只有一个线程能获取到锁
-        RLock lock1 = redissonClient.getLock("yupao:user" + ":" + userId);
-        RLock lock2 = redissonClient.getLock("yupao:team" + ":" + teamId);
+        RLock lock1 = redissonClient.getLock("yichat:user" + ":" + userId);
+        RLock lock2 = redissonClient.getLock("yichat:team" + ":" + teamId);
 
         RLock lock = redissonClient.getMultiLock(lock1, lock2);
         try {

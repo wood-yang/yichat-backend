@@ -16,6 +16,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StopWatch;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -345,6 +346,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.isNotNull("tags");
         List<User> userList = this.list(queryWrapper);
 
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
         PriorityQueue<User> userPriorityQueue = new PriorityQueue<>(num + 2, (o1, o2) -> {
             List<String> userTagList1 = gson.fromJson(o1.getTags(), new TypeToken<List<String>>() {
             }.getType());
@@ -372,6 +376,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (matchUserList.size() > num) {
             matchUserList.remove(matchUserList.size() - 1);
         }
+
+        stopWatch.stop();
+        System.out.println(stopWatch.getTotalTimeMillis());
+
         return matchUserList;
 
         // 用户列表的下标 => 相似度

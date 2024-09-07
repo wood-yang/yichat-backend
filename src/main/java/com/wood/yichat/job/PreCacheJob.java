@@ -38,7 +38,7 @@ public class PreCacheJob {
     // 每天执行，预热用户
     @Scheduled(cron = "0 0 0 * * ? ")
     public void doPerCache() {
-        RLock lock = redissonClient.getLock("yupao:precachejob:docache:lock");
+        RLock lock = redissonClient.getLock("yichat:precachejob:docache:lock");
         try {
             // 只有一个线程能获取到锁
             if (lock.tryLock(0, 30000L, TimeUnit.MILLISECONDS)) {
@@ -55,7 +55,7 @@ public class PreCacheJob {
                     QueryWrapper<User> queryWrapper = new QueryWrapper<>();
                     queryWrapper.in("id", idList);
                     Page<User> userPage = userService.page(new Page<>(1, 20), queryWrapper);
-                    String redisKey = String.format("yupao:user:recommend:%s", userId);
+                    String redisKey = String.format("yichat:user:recommend:%s", userId);
                     ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
                     Gson gson = new Gson();
                     String json = gson.toJson(userPage);

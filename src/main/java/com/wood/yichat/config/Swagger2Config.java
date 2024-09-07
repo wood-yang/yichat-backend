@@ -30,7 +30,7 @@ public class Swagger2Config {
                 .groupName("用户端接口")
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.wood.yupao.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.wood.yichat.controller"))
                 .build();
     }
 }

@@ -96,7 +96,7 @@ public class UserController {
 //        Cookie cookie = new Cookie("token", token);
 //        cookie.setMaxAge(60*60*24*30);//设置cookie有效期30天(这只会对手机有效，当然你也可以区别设置)
 //        cookie.setPath("/");
-//        cookie.setDomain("https://yupao-backend-119385-6-1328506132.sh.run.tcloudbase.com");
+//        cookie.setDomain("https://yichat-backend-119385-6-1328506132.sh.run.tcloudbase.com");
 ////        cookie.setDomain("localhost");
 //        response.addCookie(cookie); //保存cookie.setAttribute("token",token);
         LoginUserVO loginUserVO = new LoginUserVO();
@@ -214,7 +214,7 @@ public class UserController {
     public BaseResponse<Page<User>> recommendUsers(long pageSize, long pageNum, HttpServletRequest request) {
         // 如果有缓存，直接读缓存
         User loginUser = userService.getLoginUser(request);
-        String redisKey = String.format("yupao:user:recommend:%s", loginUser.getId());
+        String redisKey = String.format("yichat:user:recommend:%s", loginUser.getId());
         ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
         String json = (String) valueOperations.get(redisKey);
         Gson gson = new Gson();

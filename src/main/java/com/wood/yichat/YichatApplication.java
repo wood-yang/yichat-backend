@@ -14,10 +14,10 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
 @MapperScan("com.wood.yichat.mapper")
 @EnableScheduling
 @EnableSwagger2WebMvc
-public class YuPaoApplication {
+public class YichatApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(YuPaoApplication.class, args);
+        SpringApplication.run(YichatApplication.class, args);
     }
 
 }
