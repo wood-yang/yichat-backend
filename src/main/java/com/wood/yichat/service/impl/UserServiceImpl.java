@@ -341,64 +341,51 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String tags = loginUser.getTags();
         Gson gson = new Gson();
         List<String> tagsList = gson.fromJson(tags, new TypeToken<List<String>>() {}.getType());
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("id", "tags");
-        queryWrapper.isNotNull("tags");
-        List<User> userList = this.list(queryWrapper);
-
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        PriorityQueue<User> userPriorityQueue = new PriorityQueue<>(num + 2, (o1, o2) -> {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("id", "tags");
+        queryWrapper.isNotNull("tags");
+        queryWrapper.ne("id", loginUser.getId());
+        List<User> userList = this.list(queryWrapper);
+        System.out.println("size=" + userList.size());
+
+        PriorityQueue<User> userPriorityQueue = new PriorityQueue<>(num, (o1, o2) -> {
             List<String> userTagList1 = gson.fromJson(o1.getTags(), new TypeToken<List<String>>() {
             }.getType());
             List<String> userTagList2 = gson.fromJson(o2.getTags(), new TypeToken<List<String>>() {
             }.getType());
-            return AlgorithmUtils.minDistance(tagsList, userTagList2) - AlgorithmUtils.minDistance(tagsList, userTagList1);
+            int dis1 = AlgorithmUtils.minDistance(tagsList, userTagList2);
+            int dis2 = AlgorithmUtils.minDistance(tagsList, userTagList1);
+            return dis1 - dis2;
         });
+        List<String> userTagList;
+        int maxDis = tagsList.size();
         for (User user : userList) {
-            userPriorityQueue.add(user);
-            if (userPriorityQueue.size() > num + 1) {
-                userPriorityQueue.poll();
-            }
-        }
-        List<Long> matchUserIdList = userPriorityQueue.stream().map(User::getId).collect(Collectors.toList());
-        matchUserIdList.sort((o1, o2) -> (int) (o1 - o2));
-        List<User> matchUserList = new ArrayList<>();
-        for (Long userId : matchUserIdList) {
-            if (loginUser.getId().equals(userId)) {
+            userTagList = gson.fromJson(user.getTags(), new TypeToken<List<String>>() {
+            }.getType());
+            int dis = AlgorithmUtils.minDistance(tagsList, userTagList);
+            if (dis >= maxDis) {
                 continue;
             }
-            User matchUser = this.getById(userId);
-            matchUserList.add(matchUser);
-        }
-        // 如果匹配列表中不包含自己，就多一个推荐人，需要移除
-        if (matchUserList.size() > num) {
-            matchUserList.remove(matchUserList.size() - 1);
+            userPriorityQueue.add(user);
+            if (userPriorityQueue.size() > num) {
+                User poll = userPriorityQueue.poll();
+                userTagList = gson.fromJson(poll.getTags(), new TypeToken<List<String>>() {
+                }.getType());
+                maxDis = AlgorithmUtils.minDistance(tagsList, userTagList);
+            }
         }
 
+        List<Long> matchUserIdList = userPriorityQueue.stream().map(User::getId).collect(Collectors.toList());
+        matchUserIdList.sort((o1, o2) -> (int) (o1 - o2));
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.in("id", matchUserIdList);
+        List<User> matchUserList = this.list(userQueryWrapper);
         stopWatch.stop();
-        System.out.println(stopWatch.getTotalTimeMillis());
+        System.out.println("把用户保存在列表中耗时：" + stopWatch.getTotalTimeMillis());
 
         return matchUserList;
-
-        // 用户列表的下标 => 相似度
-//        SortedMap<Integer, Integer> indexDistanceMap = new TreeMap<>();
-//        for (int i = 0; i < userList.size(); i++) {
-//            User user = userList.get(i);
-//            String userTags = user.getTags();
-//            if (StringUtils.isBlank(userTags) || loginUser.getId().equals(user.getId())) {
-//                continue;
-//            }
-//            List<String> userTagList = gson.fromJson(userTags, new TypeToken<List<String>>() {}.getType());
-//            // 计算分数
-//            int minDistance = AlgorithmUtils.minDistance(tagsList, userTagList);
-//
-//            indexDistanceMap.put(i, minDistance);
-//        }
-//        List<Integer> maxDistanceIndexList = indexDistanceMap.keySet().stream().limit(num).collect(Collectors.toList());
-//        List<User> matchUserList = maxDistanceIndexList.stream().map(index -> getSafetyUser(userList.get(index))).collect(Collectors.toList());
-
-//        return matchUserList;
     }
 }

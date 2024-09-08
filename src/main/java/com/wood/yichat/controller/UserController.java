@@ -234,6 +234,9 @@ public class UserController {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("id", idList);
         userPage = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
+        if (userPage == null) {
+            return ResultUtils.success(userPage);
+        }
         // 把缓存写进去
         try {
             json = gson.toJson(userPage);

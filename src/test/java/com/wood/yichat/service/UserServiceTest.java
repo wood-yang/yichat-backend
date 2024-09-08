@@ -1,7 +1,10 @@
-//package com.wood.yichat.service;
+//package com.wood.yupao.service;
 //
 //import cn.hutool.http.HttpUtil;
 //import com.google.gson.Gson;
+//import com.wood.yichat.YichatApplication;
+//import com.wood.yichat.model.domain.User;
+//import com.wood.yichat.service.UserService;
 //import org.junit.jupiter.api.Test;
 //import org.junit.runner.RunWith;
 //import org.springframework.boot.test.context.SpringBootTest;
@@ -13,6 +16,7 @@
 //import java.util.concurrent.*;
 //
 //@RunWith(SpringRunner.class)
+//@SpringBootTest(classes = YichatApplication.class)
 //public class UserServiceTest {
 //
 //    @Resource
@@ -33,7 +37,7 @@
 //        final int INSERT_NUM = 1000;
 //        // 分十组
 //        List<CompletableFuture<Void>> futureList = new ArrayList<>();
-//        for (int i = 0; i < 1; i++) {
+//        for (int i = 0; i < 800; i++) {
 //            List<User> userList = Collections.synchronizedList(new ArrayList<>());
 //            List<String> language = Arrays.asList("\"java\"", "\"c++\"", "\"python\"", "\"php\"");
 //            List<String> gender = Arrays.asList("\"男\"", "\"女\"");
@@ -44,15 +48,15 @@
 //
 //            for (int j = 0; j < INSERT_NUM; j++) {
 //                User user = new User();
-//                String name = HttpUtil.get("https://api.mir6.com/api/sjname");
-//                user.setUsername(name);
+////                String name = HttpUtil.get("https://api.mir6.com/api/sjname");
+////                user.setUsername(name);
 //                Random random = new Random();
 //                int number = random.nextInt(88888888) + 11111111;
 //                user.setUserAccount(String.valueOf(number));
-//                String avatarUrl = HttpUtil.get("https://api.vvhan.com/api/avatar/rand?type=json");
+////                String avatarUrl = HttpUtil.get("https://api.vvhan.com/api/avatar/rand?type=json");
 //                Gson gson = new Gson();
-//                HashMap map = gson.fromJson(avatarUrl, HashMap.class);
-//                user.setAvatarUrl((String) map.get("url"));
+////                HashMap map = gson.fromJson(avatarUrl, HashMap.class);
+////                user.setAvatarUrl((String) map.get("url"));
 //                number = random.nextInt(2);
 //                user.setGender(number);
 //                user.setUserPassword("fed63ea6b39df48c361f4eecac3e5ddf");

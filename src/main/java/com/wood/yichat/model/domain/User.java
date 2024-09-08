@@ -10,7 +10,7 @@ import java.util.Date;
  * 用户实体
  *
  */
-@TableName(value = "user")
+@TableName(value = "yupao.user")
 @Data
 public class User implements Serializable {
     /**
